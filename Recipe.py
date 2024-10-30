@@ -1,11 +1,12 @@
 # PART 1
 import streamlit as st
 import json
-
+from streamlit_option_menu import option_menu
 
 with open("ingredients.json", "r", encoding="utf-8") as file:
     ingredients_data = json.load(file)
-
+with st.sidebar:
+        st.title("Chọn Nguyên Liệu")
 st.title("Chọn Nguyên Liệu")
 
 # Khởi tạo danh sách để lưu các nguyên liệu đã chọn
