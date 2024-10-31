@@ -15,6 +15,11 @@ def display_about_info():
     for offer, descript in offers.items():
         st.subheader(offer)
         st.write(descript)
+        if offer == "Hướng Dẫn Nấu Ăn Theo Nguyên Liệu Sẵn Có":
+            link = "https://github.com/manhmanh39/Group_3_Python/blob/main/about_us.py"  # Link part 1
+        else:
+            link = "https://github.com/manhmanh39/Group_3_Python/blob/main/about_us.py"  # Link part 2
+        st.write(f"[Xem chi tiết](link={link})")
 
     st.header("Let’s start with CALM")
     st.write("CALM mong muốn là người bạn đồng hành đáng tin cậy trên hành trình ẩm thực của bạn. Bất kể bạn đang tìm kiếm một bữa ăn nhanh cho gia đình, hay một thực đơn cân bằng dinh dưỡng, CALM luôn ở đây để hỗ trợ. Hãy cùng chúng tôi bắt đầu hành trình ẩm thực ngay hôm nay và biến mỗi bữa ăn thành một trải nghiệm đáng nhớ!")
