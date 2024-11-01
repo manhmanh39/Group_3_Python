@@ -11,12 +11,12 @@ def display_about_info():
 
     st.header("Dịch vụ của chúng tôi")
     offers = {
-        "Hướng Dẫn Nấu Ăn Theo Nguyên Liệu Sẵn Có": "CALM giúp bạn dễ dàng tìm được ý tưởng món ăn từ những nguyên liệu có sẵn trong bếp. Với tính năng này, bạn chỉ cần nhập các nguyên liệu hiện có, hệ thống sẽ đưa ra các gợi ý món ăn đa dạng và phân loại theo độ khó, từ những món ăn đơn giản cho ngày bận rộn đến các công thức sáng tạo. Ngoài ra, mỗi món ăn còn được gợi ý dựa trên mức độ phù hợp với tình trạng sức khỏe của bạn, giúp bạn dễ dàng lựa chọn công thức lý tưởng cho mọi bữa ăn.",
+        "Hướng dẫn nấu ăn theo nguyên liệu sẵn có": "CALM giúp bạn dễ dàng tìm được ý tưởng món ăn từ những nguyên liệu có sẵn trong bếp. Với tính năng này, bạn chỉ cần nhập các nguyên liệu hiện có, hệ thống sẽ đưa ra các gợi ý món ăn đa dạng và phân loại theo độ khó, từ những món ăn đơn giản cho ngày bận rộn đến các công thức sáng tạo. Ngoài ra, mỗi món ăn còn được gợi ý dựa trên mức độ phù hợp với tình trạng sức khỏe của bạn, giúp bạn dễ dàng lựa chọn công thức lý tưởng cho mọi bữa ăn.",
         "Xây dựng thực đơn cá nhân hóa": "CALM còn hỗ trợ bạn xây dựng thực đơn cá nhân hóa một cách khoa học và hiệu quả dựa trên chỉ số BMI, ngân sách và mục tiêu dinh dưỡng của riêng mình. CALM mang đến giải pháp tối ưu giúp bạn tiết kiệm thời gian, tối đa hóa dinh dưỡng và duy trì lối sống lành mạnh với thực đơn được cá nhân hóa trong từng món ăn."}
     for offer, descript in offers.items():
         st.subheader(offer)
         st.write(descript)
-        if offer == "Hướng Dẫn Nấu Ăn Theo Nguyên Liệu Sẵn Có":
+        if offer == "Hướng dẫn nấu ăn theo nguyên liệu sẵn có":
             link = "https://www.facebook.com/manhmanh369"  # Link part 1
         else:
             link = "https://www.facebook.com/manhmanh369"  # Link part 2
@@ -27,3 +27,4 @@ def display_about_info():
     st.write("CALM mong muốn là người bạn đồng hành đáng tin cậy trên hành trình ẩm thực của bạn. Bất kể bạn đang tìm kiếm một bữa ăn nhanh cho gia đình, hay một thực đơn cân bằng dinh dưỡng, CALM luôn ở đây để hỗ trợ. Hãy cùng chúng tôi bắt đầu hành trình ẩm thực ngay hôm nay và biến mỗi bữa ăn thành một trải nghiệm đáng nhớ!")
 
 display_about_info()
+#http://192.168.110.75:8501
