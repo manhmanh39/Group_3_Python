@@ -1,12 +1,11 @@
 #PART 1
 import streamlit as st
 import json
+import pandas as pd
 
-# Load the ingredients data
 with open("ingredients.json", "r", encoding="utf-8") as file:
     ingredients_data = json.load(file)
-
-# Apply custom styling
+medical_conditions = ["Tiểu đường", "Huyết áp cao", "Dạ dày", "Gout"]
 st.markdown("""
     <style>
     .ingredient-box {
@@ -26,43 +25,70 @@ st.markdown("""
         accent-color: #4CAF50; /* Checkbox color */
         transform: scale(1.2); /* Make the checkbox slightly larger */
     }
-    .section-heading {
-        font-size: 24px;
-        color: #333; /* Gray color */
-        font-weight: bold;
-        margin-top: 20px;
-        text-align: center;
-    }
-    .category-title {
-        font-size: 20px;
-        color: #333;
-        margin-top: 15px;
-        text-align: center;
-    }
     </style>
 """, unsafe_allow_html=True)
 
-with st.sidebar:
-    st.markdown('<div class="section-heading">Chọn Nguyên Liệu</div>', unsafe_allow_html=True)
-    selected_ingredients = {}
-    
-    for category, items in ingredients_data.items():
-        with st.sidebar.expander(f"**{category}**", expanded=True):
-            selected_ingredients[category] = []
-            
-            ingredient_columns = st.columns(3)
-            for i, ingredient in enumerate(items):
-                with ingredient_columns[i % 3]:  # Distribute ingredients in three columns
-                    if st.checkbox(ingredient, key=ingredient):
-                        selected_ingredients[category].append(ingredient)
+selected_ingredients = []
+selected_conditions = []
+st.title("Gợi ý món ăn")
+df = pd.read_csv("foods.csv")
+def similarity(list1, list2):
+    set1 = set(list1.split(","))
+    set2 = set(list2)
+    intersection = set1.intersection(set2)
+    return len(intersection)
 
-    st.write("")
-    col1, col2 = st.columns([2, 1])  
-    with col1:
-        st.write("")
-    with col2:
-        if st.button("Xác nhận", key="confirm_button"):
-            chosen_ingredients = [ingredient for category in selected_ingredients.values() for ingredient in category]
+def link_create(ten_mon):
+    row = df.loc[df['Tên món'] == ten_mon]
+    return row['Công thức'].values[0]
+display = False
+with st.sidebar:
+    st.title("Chọn nguyên liệu")
+    for category, items in ingredients_data.items():
+        st.markdown(f"**{category}**")
         
+        ingredient_columns = st.columns(3)
+        for i, ingredient in enumerate(items):
+            with ingredient_columns[i % 3]:
+                if st.checkbox(ingredient, key=f"{category}_{ingredient}"):
+                    selected_ingredients.append(ingredient)
+
+    st.title("Bệnh lý")
+    condition_columns = st.columns(2)
+    for i, condition in enumerate(medical_conditions):
+        with condition_columns[i % 2]:
+            if st.checkbox(condition, key=f"condition_{condition}"):
+                selected_conditions.append(condition)
+
+    button_column = st.columns([2, 1])  
+    with button_column[1]: 
+        if st.button("Xác nhận", key="confirm_button"):
+            display = True
+#            chosen_ingredients = {category: items for category, items in selected_ingredients.items() if items} 
+if display:
+            # Lọc dữ liệu
+        #if selected_conditions:
+            # Tạo một DataFrame tạm thời để chứa các điều kiện lọc
+    if selected_conditions:
+        conditions = [~(df[col] == 1) for col in selected_conditions]
+        df_loc = df[pd.concat(conditions, axis=1).all(axis=1)]
+    else:
+    # Nếu không có điều kiện nào được chọn, trả về toàn bộ DataFrame
+        df_loc = df.copy()
+
+    # Tính độ trùng lặp và sắp xếp
+    df_loc['similarity'] = df_loc['Nguyên liệu'].apply(lambda x: similarity(x, selected_ingredients))
+    df_loc = df_loc.sort_values('similarity', ascending=False)
+
+    # Hiển thị kết quả
+    for index, row in df_loc.iterrows():
+        with st.container():
+            st.markdown(f"### {row['Tên món']}", unsafe_allow_html=True)
+            st.write(f"Nguyên liệu chính: {row['Nguyên liệu']}")
+            st.write(f"Thời gian: {row['Time']}")
+            if 'Calo' in row:
+                st.write(f"Calo: {row['Calo']} kcal")
+            link = link_create(row['Tên món'])
+            if st.button("Xem công thức", key=f"button_{index}"):
+                st.markdown(f"[Xem công thức]({link})", unsafe_allow_html=True)
     
-st.markdown('<div class="section-heading">Gợi Ý Món Ăn</div>', unsafe_allow_html=True)
