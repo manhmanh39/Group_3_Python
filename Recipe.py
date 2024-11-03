@@ -89,6 +89,6 @@ if display:
             if 'Calo' in row:
                 st.write(f"Calo: {row['Calo']} kcal")
             link = link_create(row['Tên món'])
-            if st.button("Xem công thức", key=f"button_{index}"):
-                st.markdown(f"[Xem công thức]({link})", unsafe_allow_html=True)
+            button = f'<a href="{link}" target="_blank"> <button>Xem công thức</button> </a>'
+            st.markdown(button, unsafe_allow_html=True)
     
