@@ -81,14 +81,27 @@ if display:
     df_loc = df_loc.sort_values('similarity', ascending=False)
 
     # Hiển thị kết quả
+    cols = st.columns(3)
     for index, row in df_loc.iterrows():
-        with st.container():
-            st.markdown(f"### {row['Tên món']}", unsafe_allow_html=True)
-            st.write(f"Nguyên liệu chính: {row['Nguyên liệu']}")
-            st.write(f"Thời gian: {row['Time']}")
-            if 'Calo' in row:
-                st.write(f"Calo: {row['Calo']} kcal")
-            link = link_create(row['Tên món'])
-            button = f'<a href="{link}" target="_blank"> <button>Xem công thức</button> </a>'
-            st.markdown(button, unsafe_allow_html=True)
-    
+        col = cols[index % 3]
+        with col:
+            with st.container():
+                st.markdown(
+                    f"""
+                    <div style="background-color:#e0f7fa; padding: 20px; border-radius: 10px; 
+                                border: 2px solid #b0e0e6;">
+                        <h3 style="color:#333;">{row['Tên món']}</h3>
+                        <p><strong>Nguyên liệu chính:</strong> {row['Nguyên liệu']}</p>
+                        <p><strong>Thời gian:</strong> {row['Time']}</p>
+                        <p><strong>Calo:</strong> {row[8]} kcal</p>
+                        <a href="{link_create(row['Tên món'])}" target="_blank">
+                            <button style="padding: 8px 12px; color: white; background-color: #4CAF50; 
+                                        border: none; border-radius: 5px; cursor: pointer;">
+                                Xem công thức
+                            </button>
+                        </a>
+                    </div>
+                    """, 
+                    unsafe_allow_html=True
+                )
+            st.markdown("<br>", unsafe_allow_html=True)
