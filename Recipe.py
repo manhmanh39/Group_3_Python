@@ -1,7 +1,17 @@
 #PART 1
 import streamlit as st
+from streamlit_extras.switch_page_button import switch_page
 import json
 import pandas as pd
+from Modules import VisualHandler
+
+st.set_page_config(
+    page_title="Recipe",
+    page_icon="🍳",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
+VisualHandler.initial()
 
 with open("ingredients.json", "r", encoding="utf-8") as file:
     ingredients_data = json.load(file)
@@ -31,7 +41,10 @@ st.markdown("""
 selected_ingredients = []
 selected_conditions = []
 st.title("Gợi ý món ăn")
+display = False
+
 df = pd.read_csv("foods.csv")
+
 def similarity(list1, list2):
     set1 = set(list1.split(","))
     set2 = set(list2)
@@ -41,7 +54,6 @@ def link_create(ten_mon):
     row = df.loc[df['Tên món'] == ten_mon]
     return row['Công thức'].values[0]
 
-display = False
 with st.sidebar:
     st.title("Chọn nguyên liệu")
     for category, items in ingredients_data.items():
@@ -63,31 +75,15 @@ with st.sidebar:
     with button_column[1]: 
         if st.button("Xác nhận", key="confirm_button"):
             display = True
-#            chosen_ingredients = {category: items for category, items in selected_ingredients.items() if items} 
-if display:
-            # Lọc dữ liệu
-        #if selected_conditions:
-            # Tạo một DataFrame tạm thời để chứa các điều kiện lọc
-    if selected_conditions:
-        conditions = [~(df[col] == 1) for col in selected_conditions]
-        df_loc = df[pd.concat(conditions, axis=1).all(axis=1)]
-    else:
-        df_loc = df.copy()
-    if not selected_ingredients:
-        st.warning("Vui lòng chọn nguyên liệu mà bạn có.")
-    else:
-        # Tính độ trùng lặp và sắp xếp
-        df["similarity"] = df["Nguyên liệu"].apply(lambda x: similarity(x, selected_ingredients))
-        df_filtered = df[df["similarity"] > 0]
 
-        if df_filtered.empty:
-            st.info("CALM KITCHEN hiện tại chưa có món ăn phù hợp cho nguyên liệu của bạn.")
-        else:
-            df_filtered = df_filtered.sort_values("similarity", ascending=False)
-
-        # Hiển thị kết quả
+else:
+    default_dishes = ['Tôm chiên xù','Canh rau dền nấu mọc tôm',"Su su xào thịt bò","Bò Xào Nấm Kim Châm",
+                    'Trứng chiên thịt nấm hương','Canh gà nấu cá nấm','Vịt om sấu','Tôm hấp bia',
+                    'Thịt lợn kho trứng cút','Canh rau cần','Mực nhồi thịt sốt dầu hào','Ức gà cuộn nấm kim châm']
+    df_filtered = df_filtered = df[df['Tên món'].isin(default_dishes)]
+    if not display:# and not search_input:
         cols = st.columns(3)
-        for index, row in df_filtered.iterrows():
+        for index, row in df_filtered.reset_index(drop=True).iterrows():
             col = cols[index % 3]
             with col:
                 with st.container():
@@ -110,3 +106,45 @@ if display:
                         unsafe_allow_html=True
                     )
                 st.markdown("<br>", unsafe_allow_html=True)
+
+    elif display:
+        if selected_conditions:
+            conditions = [~(df[col] == 1) for col in selected_conditions]
+            df_loc = df[pd.concat(conditions, axis=1).all(axis=1)]
+        else:
+            df_loc = df.copy()
+        if not selected_ingredients:
+            st.warning("Vui lòng chọn nguyên liệu mà bạn có.")
+        else:
+            df["similarity"] = df["Nguyên liệu"].apply(lambda x: similarity(x, selected_ingredients))
+            df_filtered = df[df["similarity"] > 0]
+                
+            if df_filtered.empty:
+                st.info("CALM KITCHEN hiện tại chưa có món ăn phù hợp cho nguyên liệu của bạn.")
+            else:
+                df_filtered = df_filtered.sort_values("similarity", ascending=False)
+
+            cols = st.columns(3)
+            for index, row in df_filtered.reset_index(drop=True).iterrows():
+                col = cols[index % 3]
+                with col:
+                    with st.container():
+                        st.markdown(
+                            f"""
+                            <div style="background-color:#e0f7fa; padding: 20px; border-radius: 10px; 
+                                        border: 2px solid #b0e0e6;">
+                                <h3 style="color:#333;">{row[0]}</h3>
+                                <p><strong>Nguyên liệu chính:</strong> {row[1]}</p>
+                                <p><strong>Thời gian:</strong> {row[7]}</p>
+                                <p><strong>Calo:</strong> {row[8]} kcal</p>
+                                <a href="{link_create(row[0])}" target="_blank">
+                                    <button style="padding: 8px 12px; color: white; background-color: #4CAF50; 
+                                                border: none; border-radius: 5px; cursor: pointer;">
+                                        Xem công thức
+                                    </button>
+                                </a>
+                            </div>
+                            """, 
+                            unsafe_allow_html=True
+                        )
+                    st.markdown("<br>", unsafe_allow_html=True)
