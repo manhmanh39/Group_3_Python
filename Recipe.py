@@ -76,12 +76,53 @@ with st.sidebar:
         if st.button("Xác nhận", key="confirm_button"):
             display = True
 
-else:
-    default_dishes = ['Tôm chiên xù','Canh rau dền nấu mọc tôm',"Su su xào thịt bò","Bò Xào Nấm Kim Châm",
-                    'Trứng chiên thịt nấm hương','Canh gà nấu cá nấm','Vịt om sấu','Tôm hấp bia',
-                    'Thịt lợn kho trứng cút','Canh rau cần','Mực nhồi thịt sốt dầu hào','Ức gà cuộn nấm kim châm']
-    df_filtered = df_filtered = df[df['Tên món'].isin(default_dishes)]
-    if not display:# and not search_input:
+default_dishes = ['Tôm chiên xù','Canh rau dền nấu mọc tôm',"Su su xào thịt bò","Bò Xào Nấm Kim Châm",
+                'Trứng chiên thịt nấm hương','Canh gà nấu cá nấm','Vịt om sấu','Tôm hấp bia',
+                'Thịt lợn kho trứng cút','Canh rau cần','Mực nhồi thịt sốt dầu hào','Ức gà cuộn nấm kim châm']
+df_filtered = df_filtered = df[df['Tên món'].isin(default_dishes)]
+if not display:# and not search_input:
+    cols = st.columns(3)
+    for index, row in df_filtered.reset_index(drop=True).iterrows():
+        col = cols[index % 3]
+        with col:
+            with st.container():
+                st.markdown(
+                    f"""
+                    <div style="background-color:#e0f7fa; padding: 20px; border-radius: 10px; 
+                                border: 2px solid #b0e0e6;">
+                        <h3 style="color:#333;">{row[0]}</h3>
+                        <p><strong>Nguyên liệu chính:</strong> {row[1]}</p>
+                        <p><strong>Thời gian:</strong> {row[7]}</p>
+                        <p><strong>Calo:</strong> {row[8]} kcal</p>
+                        <a href="{link_create(row[0])}" target="_blank">
+                            <button style="padding: 8px 12px; color: white; background-color: #4CAF50; 
+                                        border: none; border-radius: 5px; cursor: pointer;">
+                                Xem công thức
+                            </button>
+                        </a>
+                    </div>
+                    """, 
+                    unsafe_allow_html=True
+                )
+            st.markdown("<br>", unsafe_allow_html=True)
+
+elif display:
+    if selected_conditions:
+        conditions = [~(df[col] == 1) for col in selected_conditions]
+        df_loc = df[pd.concat(conditions, axis=1).all(axis=1)]
+    else:
+        df_loc = df.copy()
+    if not selected_ingredients:
+        st.warning("Vui lòng chọn nguyên liệu mà bạn có.")
+    else:
+        df["similarity"] = df["Nguyên liệu"].apply(lambda x: similarity(x, selected_ingredients))
+        df_filtered = df[df["similarity"] > 0]
+            
+        if df_filtered.empty:
+            st.info("CALM KITCHEN hiện tại chưa có món ăn phù hợp cho nguyên liệu của bạn.")
+        else:
+            df_filtered = df_filtered.sort_values("similarity", ascending=False)
+
         cols = st.columns(3)
         for index, row in df_filtered.reset_index(drop=True).iterrows():
             col = cols[index % 3]
@@ -106,45 +147,3 @@ else:
                         unsafe_allow_html=True
                     )
                 st.markdown("<br>", unsafe_allow_html=True)
-
-    elif display:
-        if selected_conditions:
-            conditions = [~(df[col] == 1) for col in selected_conditions]
-            df_loc = df[pd.concat(conditions, axis=1).all(axis=1)]
-        else:
-            df_loc = df.copy()
-        if not selected_ingredients:
-            st.warning("Vui lòng chọn nguyên liệu mà bạn có.")
-        else:
-            df["similarity"] = df["Nguyên liệu"].apply(lambda x: similarity(x, selected_ingredients))
-            df_filtered = df[df["similarity"] > 0]
-                
-            if df_filtered.empty:
-                st.info("CALM KITCHEN hiện tại chưa có món ăn phù hợp cho nguyên liệu của bạn.")
-            else:
-                df_filtered = df_filtered.sort_values("similarity", ascending=False)
-
-            cols = st.columns(3)
-            for index, row in df_filtered.reset_index(drop=True).iterrows():
-                col = cols[index % 3]
-                with col:
-                    with st.container():
-                        st.markdown(
-                            f"""
-                            <div style="background-color:#e0f7fa; padding: 20px; border-radius: 10px; 
-                                        border: 2px solid #b0e0e6;">
-                                <h3 style="color:#333;">{row[0]}</h3>
-                                <p><strong>Nguyên liệu chính:</strong> {row[1]}</p>
-                                <p><strong>Thời gian:</strong> {row[7]}</p>
-                                <p><strong>Calo:</strong> {row[8]} kcal</p>
-                                <a href="{link_create(row[0])}" target="_blank">
-                                    <button style="padding: 8px 12px; color: white; background-color: #4CAF50; 
-                                                border: none; border-radius: 5px; cursor: pointer;">
-                                        Xem công thức
-                                    </button>
-                                </a>
-                            </div>
-                            """, 
-                            unsafe_allow_html=True
-                        )
-                    st.markdown("<br>", unsafe_allow_html=True)
